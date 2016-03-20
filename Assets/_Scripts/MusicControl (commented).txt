@@ -1,0 +1,162 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+
+public class MusicControl : MonoBehaviour
+{
+
+    /// <summary>
+    /// Used to control/save sound settings
+    /// 
+    /// Sound:
+    /// since new background gameobjects are being loaded on each load scene it causes duplicates
+    /// try making an array of prefab music
+    /// also since slider and drop down are being reset in awake, it might be causing duplicate playing
+    /// background music continues over scens on first run but doesn't on second
+    /// </summary>
+
+
+    private static MusicControl instanceRef;
+
+    public AudioSource[] backgroundMusic;
+    private GameObject sound;
+    public GameObject[] backgroundPrefabs;
+    public Dropdown backD;
+    public Slider backS;
+    static float backSVal = 0;
+    static int lastBackVal = 0;
+
+    static public int laserValD = 0;
+    public Dropdown laserD;
+    public Slider laserS;
+    static public float laserValS = 1;
+
+    static public int expValD = 0;
+    public Dropdown expD;
+    public Slider expS;
+    static public float expValS = 1;
+
+    static public int winValD = 0;
+    public Dropdown winD;
+    public Slider winS;
+    static public float winValS = 1;
+
+    private static GameObject backgroundRef;
+
+    //  static bool backgroundPlaying = false;
+
+    void Awake()
+    {
+        if (instanceRef == null)
+        {
+            //  backgroundMusic[0] = ((GameObject)Resources.Load("background1")).GetComponent<AudioSource>();
+            // backgroundMusic[1] = ((GameObject)Resources.Load("background2")).GetComponent<AudioSource>();
+            //backgroundMusic[2] = ((GameObject)Resources.Load("background3")).GetComponent<AudioSource>();
+            //backgroundMusic[0] = (Instantiate(backgroundPrefabs[0]) as GameObject).GetComponent<AudioSource>();
+            //backgroundMusic[1] = (Instantiate(backgroundPrefabs[1]) as GameObject).GetComponent<AudioSource>();
+            //backgroundMusic[2] = (Instantiate(backgroundPrefabs[2]) as GameObject).GetComponent<AudioSource>();
+            instanceRef = this;
+            DontDestroyOnLoad(GameObject.Find("MusicControl"));
+            DontDestroyOnLoad(backgroundMusic[0]);
+            DontDestroyOnLoad(backgroundMusic[1]);
+            DontDestroyOnLoad(backgroundMusic[2]);
+            // DontDestroyOnLoad(sound);
+        }
+        else
+        {
+            DestroyImmediate(GameObject.Find("MusicControl"));
+            DestroyImmediate(GameObject.Find("background1"));
+            DestroyImmediate(GameObject.Find("background2"));
+            DestroyImmediate(GameObject.Find("background3"));
+        }
+        /*
+        if (backgroundRef == null)
+        {
+            backgroundRef = GameObject.Find("background1");
+            DontDestroyOnLoad(backgroundRef);
+        }
+        else
+        {
+            DestroyImmediate(GameObject.Find("background1"));
+        }
+        */
+        // backS.value = backSVal;
+        //backD.value = lastBackVal;
+
+        laserD.value = laserValD;
+        laserS.value = laserValS;
+
+        expD.value = expValD;
+        expS.value = expValS;
+
+        winD.value = winValD;
+        winS.value = winValS;
+    }
+
+    public void PlaySongBackground()
+    {
+        // Destroy(sound);
+        //////////////////////////////////////????^^
+
+
+        StopLastSongBackground();
+        lastBackVal = backD.value;
+        backgroundMusic[backD.value].Play();
+        backgroundMusic[backD.value].volume = backS.value;
+
+        //try instantiating audio sources instead
+        //Figure out a way to stop second background gameobject from instantiating
+        // sound = Instantiate(backgroundPrefabs[backD.value]) as GameObject;
+        //sound.GetComponent<AudioSource>().Play();
+        //sound.GetComponent<AudioSource>().volume = backS.value;
+    }
+    public void StopLastSongBackground()
+    {
+        // Destroy(sound);
+        backgroundMusic[lastBackVal].Stop();
+    }
+    public void ChangeSongVolumeBackground()
+    {
+        backSVal = backS.value;
+        if (!backgroundMusic[lastBackVal].isPlaying)
+        {
+            backgroundMusic[lastBackVal].Play();
+        }
+        backgroundMusic[lastBackVal].volume = backSVal;
+
+
+        // sound.GetComponent<AudioSource>().volume = backSVal;
+    }
+
+
+    public void SetLaserSound()
+    {
+        laserValD = laserD.value;
+        laserValS = laserS.value;
+    }
+    public void SetLaserVolume()
+    {
+        laserValS = laserS.value;
+    }
+    public void SetExplosionSound()
+    {
+        expValD = expD.value;
+        expValS = expS.value;
+    }
+    public void SetExplosionVolume()
+    {
+        expValS = expS.value;
+    }
+
+    public void SetWinMusic()
+    {
+        winValD = winD.value;
+        winValS = winS.value;
+    }
+    public void SetWinVolume()
+    {
+        winValS = winS.value;
+    }
+
+
+}
