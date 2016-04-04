@@ -11,7 +11,12 @@ public class MusicControl : MonoBehaviour
 
     private static MusicControl instanceRef;
 
-    public AudioSource[] backgroundMusic;
+    public AudioSource[] lasers = new AudioSource[3];
+    public AudioSource[] explosions = new AudioSource[3];
+    public AudioSource[] wins = new AudioSource[2];
+
+    public static GameObject[] backgroundMusic = new GameObject[3];
+    public GameObject[] backgroundMusicPrefab;
     public Dropdown backD;
     public Slider backS;
     static float backSVal = 0;
@@ -34,23 +39,26 @@ public class MusicControl : MonoBehaviour
 
     private static GameObject backgroundRef;
 
-    void Awake()
+
+    void Start()
     {
-        //Lets music continue playing after new scene load
-        if (instanceRef == null)
+        //Creates background audio source objects if not made already
+        if (backgroundMusic[0] == null)
         {
-            instanceRef = this;
-            DontDestroyOnLoad(GameObject.Find("MusicControl"));
+            backgroundMusic[0] = Instantiate(backgroundMusicPrefab[0]) as GameObject;
+            backgroundMusic[1] = Instantiate(backgroundMusicPrefab[1]) as GameObject;
+            backgroundMusic[2] = Instantiate(backgroundMusicPrefab[2]) as GameObject;
+
             DontDestroyOnLoad(backgroundMusic[0]);
             DontDestroyOnLoad(backgroundMusic[1]);
             DontDestroyOnLoad(backgroundMusic[2]);
         }
+        //If background audio sources already made, assigns them
         else
         {
-            DestroyImmediate(GameObject.Find("MusicControl"));
-            DestroyImmediate(GameObject.Find("background1"));
-            DestroyImmediate(GameObject.Find("background2"));
-            DestroyImmediate(GameObject.Find("background3"));
+            backgroundMusic[0] = GameObject.Find("background1(Clone)");
+            backgroundMusic[1] = GameObject.Find("background2(Clone)");
+            backgroundMusic[2] = GameObject.Find("background3(Clone)");
         }
 
         //Sets dropdown/slider values to previous
@@ -65,66 +73,82 @@ public class MusicControl : MonoBehaviour
 
         winD.value = winValD;
         winS.value = winValS;
+
+        //Add listeners
+        backD.onValueChanged.AddListener(PlaySongBackground);
+        backS.onValueChanged.AddListener(ChangeSongVolumeBackground);
+
+        laserD.onValueChanged.AddListener(SetLaserSound);
+        laserS.onValueChanged.AddListener(SetLaserVolume);
+
+        expD.onValueChanged.AddListener(SetExplosionSound);
+        expS.onValueChanged.AddListener(SetExplosionVolume);
+
+        winD.onValueChanged.AddListener(SetWinMusic);
+        winS.onValueChanged.AddListener(SetWinVolume);
     }
 
     //Plays background music
-    public void PlaySongBackground()
+    public void PlaySongBackground(int value)
     {
         StopLastSongBackground();
         lastBackVal = backD.value;
-        backgroundMusic[backD.value].Play();
-        backgroundMusic[backD.value].volume = backS.value;
+        backgroundMusic[backD.value].GetComponent<AudioSource>().Play();
+        backgroundMusic[backD.value].GetComponent<AudioSource>().volume = backS.value;
     }
 
     //Stops previous song for song change
     public void StopLastSongBackground()
     {
-        backgroundMusic[lastBackVal].Stop();
+        backgroundMusic[lastBackVal].GetComponent<AudioSource>().Stop();
     }
 
     //Changes song volume and starts song if not playing
-    public void ChangeSongVolumeBackground()
+    public void ChangeSongVolumeBackground(float value)
     {
         backSVal = backS.value;
-        if (!backgroundMusic[lastBackVal].isPlaying)
+        if (!backgroundMusic[lastBackVal].GetComponent<AudioSource>().isPlaying)
         {
-            backgroundMusic[lastBackVal].Play();
+            backgroundMusic[lastBackVal].GetComponent<AudioSource>().Play();
         }
-        backgroundMusic[lastBackVal].volume = backSVal;
+        backgroundMusic[lastBackVal].GetComponent<AudioSource>().volume = backSVal;
     }
 
     //Allows user to select laser sound effect
-    public void SetLaserSound()
+    public void SetLaserSound(int value)
     {
         laserValD = laserD.value;
         laserValS = laserS.value;
+        lasers[laserValD].Play();
     }
     //Allows user to select laser sound effect volume
-    public void SetLaserVolume()
+    public void SetLaserVolume(float value)
     {
         laserValS = laserS.value;
     }
 
     //Allows user to select explosion sound effect
-    public void SetExplosionSound()
+    public void SetExplosionSound(int value)
     {
         expValD = expD.value;
         expValS = expS.value;
+        explosions[expValD].Play();
     }
     //Allows user to select explosion sound effect volume
-    public void SetExplosionVolume()
+    public void SetExplosionVolume(float value)
     {
         expValS = expS.value;
     }
 
     //Allows user to select level up fanfare
-    public void SetWinMusic()
+    public void SetWinMusic(int value)
     {
         winValD = winD.value;
         winValS = winS.value;
+        wins[winValD].Play();
     }
     //Allows user to select level up fanfare volume
-    public void SetWinVolume()
+    public void SetWinVolume(float value)
     {
         winValS = winS.value;
     }
